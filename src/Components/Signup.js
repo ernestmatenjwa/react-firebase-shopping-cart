@@ -1,0 +1,66 @@
+import React, { useState } from 'react'
+import { auth, db } from '../Config/Config'
+import { Link } from 'react-router-dom'
+import './login.css'
+
+export const Signup = (props) => {
+
+    // defining state
+    const [fullnames, setFullnames] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    // signup
+    const signup = (e) => {
+        e.preventDefault();
+        auth.createUserWithEmailAndPassword(email, password).then((cred) => {
+            db.collection('users').doc(cred.user.uid).set({
+                Fullnames: fullnames,
+                Email: email,
+                Password: password
+            }).then(() => {
+                setFullnames('');
+                setEmail('');
+                setPassword('');
+                setError('');
+                props.history.push('/login');
+            }).catch(err => setError(err.message));
+        }).catch(err => setError(err.message));
+    }
+
+    return (
+        
+            <div className='background'>
+            <div className="loginform">
+            <form autoComplete="off" className='form-group' onSubmit={signup}>
+            <h3>S i g n  U p</h3>
+            <br/>
+            <hr/>
+            <br/><br/>
+            <br/>
+                <label htmlFor="fullnames">Name</label>
+                <input type="text" className='form-control' required
+                    onChange={(e) => setFullnames(e.target.value)} value={fullnames} />
+                <br />
+                <label htmlFor="email">Email</label>
+                <input type="email" className='form-control' required
+                    onChange={(e) => setEmail(e.target.value)} value={email} />
+                <br />
+                <label htmlFor="passowrd">Password</label>
+                <input type="password" className='form-control' required
+                    onChange={(e) => setPassword(e.target.value)} value={password} />
+                <br />
+                <button type="submit" className='btn btn-success btn-md mybtn'>SUBMIT</button>
+                <br/>
+                {error && <span className='error-msg'>{error}</span>}
+            <br />
+            <span>Already have an account? Login
+                <Link to="login"> Here</Link>
+            </span>
+            </form>
+            </div>
+            </div>
+           
+    )
+}
